@@ -36,10 +36,12 @@ export default function RegisterPage() {
   const handleSubmit = async (values: RegisterValues) => {
     try {
       const response = await registeration(values);
-     
+
       if (response?.status === 201) {
         toast.success("Registration successful!");
-        router.push("/login"); 
+        setTimeout(() => {
+          router.push("/login");
+        }, 1000);
       }
     } catch (err) {
       console.error(err);

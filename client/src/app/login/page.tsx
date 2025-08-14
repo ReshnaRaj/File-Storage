@@ -32,7 +32,9 @@ export default function Login() {
 
       if (response?.status == 200) {
         toast.success(response.data.message);
-        router.push("/dashboard");
+       setTimeout(()=>{
+         router.push("/dashboard");
+       },1000)
       }
     } catch (err) {
       console.error(err);
