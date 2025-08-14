@@ -11,7 +11,8 @@ export const registeration = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "All fields are required" });
   }
   try {
-    const userExists = await userModel.find({ email });
+    const userExists = await userModel.findOne({ email });
+
     if (userExists) {
       return res.status(400).json({ message: "User already exist" });
     }
@@ -22,7 +23,8 @@ export const registeration = async (req: Request, res: Response) => {
       password: hashed,
     });
     const newUser = await UserData.save();
-    return res.status(201).json(newUser);
+
+    return res.status(201).json({newUser,message:"User registered successfully"});
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
@@ -46,9 +48,9 @@ export const login = async (req: Request, res: Response) => {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",  
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,  
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({

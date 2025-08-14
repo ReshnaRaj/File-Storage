@@ -7,6 +7,7 @@ dotenv.config();
 import dbConnection from "./config/dbConnection"
 import authRoute from "./routes/authRoute";
 const app = express();
+ 
 app.use(cors({
     origin:process.env.BASE_URL,
     methods:['POST','GET','PUT','DELETE'],
