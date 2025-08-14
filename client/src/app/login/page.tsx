@@ -6,13 +6,15 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
 import { login } from "@/lib/api/auth";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/redux/slice/authSlice";
 export default function Login() {
+  const dispatch = useDispatch();
   const router = useRouter();
   interface LoginValues {
     email: string;
     password: string;
   }
-
   const initialValues: LoginValues = {
     email: "",
     password: "",
@@ -29,12 +31,18 @@ export default function Login() {
   const handleSubmit = async (values: LoginValues) => {
     try {
       const response = await login(values);
-
+      console.log(response, "login response ");
       if (response?.status == 200) {
+        dispatch(
+          setCredentials({
+            user: response.data.user,
+            token: response.data.accessToken,
+          })
+        );
         toast.success(response.data.message);
-       setTimeout(()=>{
-         router.push("/dashboard");
-       },1000)
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1000);
       }
     } catch (err) {
       console.error(err);
