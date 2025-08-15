@@ -9,16 +9,18 @@ import {
   FileText,
   FileImage,
   File as FileIcon,
+ 
 } from "lucide-react";
 import { toast } from "sonner";
-import { uploadFile, deleteFile, getFiles } from "@/lib/api/file";
+import { uploadFile, deleteFile, getFiles, downloadFile } from "@/lib/api/file";
 import ProtectedRoute from "@/routes/ProtectedRoute";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../redux/store";
+import { logout } from "../../redux/slice/authSlice";
 
 interface UploadedFile {
   _id: string;
-  name: string;
+  fileName: string;
   url: string;
   type: string;
   mimeType: string;
@@ -27,24 +29,25 @@ interface UploadedFile {
 export default function Dashboard() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  const handleDownload = (url: string, filename: string) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownload = async (fileId: string, filename: string) => {
+    console.log(filename, fileId, "kkkkk");
+    try {
+      await downloadFile(fileId, filename);
+    } catch (error) {
+      toast.error("Download failed");
+    }
   };
+
   const token = useSelector((state: RootState) => state.auth.token);
+  const dispatch = useDispatch();
 
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
 
   const fetchFiles = async () => {
-    
     const res = await getFiles();
-    
+
     setFiles(res?.data);
   };
   const allowedTypes = [
@@ -84,11 +87,11 @@ export default function Dashboard() {
 
     try {
       const res = await uploadFile(formData);
-    
 
-      if (res?.status === 200) {
+      if (res?.status === 201) {
         setSelectedFiles([]);
         fetchFiles();
+        toast.success("Files uploaded successfully");
       } else {
         alert("Upload failed");
       }
@@ -100,11 +103,16 @@ export default function Dashboard() {
   };
 
   const handleDelete = async (id: string) => {
-    
     if (!confirm("Delete this file?")) return;
     await deleteFile(id);
     toast.success("File deleted successfully");
     fetchFiles();
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    toast.success("Logged out successfully");
+    window.location.href = "/login"; // Redirect to login page
   };
 
   const renderSelectedFilePreview = () => {
@@ -151,11 +159,19 @@ export default function Dashboard() {
       fetchFiles();
     }
   }, [token]);
-  
+  console.log(files, "file dataaa");
   return (
     <ProtectedRoute>
       <div className="max-w-4xl mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-6">File Dashboard</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">File Dashboard</h1>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Logout
+          </button>
+        </div>
 
         {/* Upload Section */}
         <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg text-center mb-6 bg-gray-50">
@@ -189,79 +205,69 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Files List */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-gray-100 text-gray-700">
-              <tr>
-                <th className="p-3">Preview</th>
-                <th className="p-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {files.length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="text-center p-6 text-gray-500">
-                    No files uploaded
-                  </td>
-                </tr>
-              ) : (
-                files.map((file) => (
-                  <tr key={file._id} className="border-t">
-                    {/* File Name */}
-
-                    {/* Preview */}
-                    <td className="p-3">
-                      {file.mimeType.startsWith("image/") ? (
-                        <img
-                          src={file.url}
-                          alt={file.name}
-                          className="w-16 h-16 object-cover rounded cursor-pointer"
-                          onClick={() => setPreviewImage(file.url)}
-                        />
-                      ) : file.mimeType === "application/pdf" ? (
-                        <div
-                          className="w-16 h-16 flex flex-col items-center justify-center border rounded bg-gray-50 cursor-pointer"
-                          onClick={() => setPreviewImage(file.url)}
-                        >
-                          <FileText className="w-8 h-8 text-red-500" />
-                          <span className="text-xs">PDF</span>
-                        </div>
-                      ) : file.mimeType === "application/msword" ||
-                        file.mimeType ===
-                          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ? (
-                        <div
-                          className="w-16 h-16 flex flex-col items-center justify-center border rounded bg-gray-50 cursor-pointer"
-                          onClick={() => setPreviewImage(file.url)}
-                        >
-                          <FileIcon className="w-8 h-8 text-blue-500" />
-                          <span className="text-xs">DOC</span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-500">No preview</span>
-                      )}
-                    </td>
-
-                    {/* Actions */}
-                    <td className="p-3 text-right flex justify-end gap-2">
-                      <button
-                        onClick={() => handleDownload(file.url, file.name)}
-                        className="p-2 bg-green-100 hover:bg-green-200 rounded"
-                      >
-                        <Download className="w-4 h-4 text-green-700" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(file._id)}
-                        className="p-2 bg-red-100 hover:bg-red-200 rounded"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-700" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        {/* Files List as Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {files.length === 0 ? (
+            <div className="col-span-full text-center text-gray-500 p-6">
+              No files uploaded
+            </div>
+          ) : (
+            files.map((file) => (
+              <div
+                key={file._id}
+                className="bg-white shadow rounded-lg p-4 flex flex-col items-center relative group hover:shadow-lg transition"
+              >
+                {/* Preview */}
+                <div
+                  className="w-32 h-32 flex items-center justify-center mb-2 cursor-pointer"
+                  onClick={() => setPreviewImage(file.url)}
+                >
+                  {file.mimeType.startsWith("image/") ? (
+                    <img
+                      src={file.url}
+                      alt={file.fileName}
+                      className="w-full h-full object-cover rounded"
+                    />
+                  ) : file.mimeType === "application/pdf" ? (
+                    <div className="flex flex-col items-center justify-center w-full h-full border rounded bg-gray-50">
+                      <FileText className="w-10 h-10 text-red-500" />
+                      <span className="text-xs">PDF</span>
+                    </div>
+                  ) : file.mimeType === "application/msword" ||
+                    file.mimeType ===
+                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ? (
+                    <div className="flex flex-col items-center justify-center w-full h-full border rounded bg-gray-50">
+                      <FileIcon className="w-10 h-10 text-blue-500" />
+                      <span className="text-xs">DOC</span>
+                    </div>
+                  ) : (
+                    <span className="text-gray-500">No preview</span>
+                  )}
+                </div>
+                {/* File Name */}
+                <div className="font-medium text-sm text-center mb-2 truncate w-full">
+                  {file.fileName}
+                </div>
+                {/* Actions */}
+                <div className="flex justify-center gap-3 mt-auto">
+                  <button
+                    onClick={() => handleDownload(file._id, file.fileName)}
+                    className="p-2 bg-green-100 hover:bg-green-200 rounded"
+                    title="Download"
+                  >
+                    <Download className="w-4 h-4 text-green-700" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(file._id)}
+                    className="p-2 bg-red-100 hover:bg-red-200 rounded"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-700" />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* File Preview Modal */}
