@@ -11,7 +11,7 @@ export const uploadFile=async (formData:FormData)=>{
         console.log(error,"error in upload api")
     }
 }
-export const fetchFiles=async ()=>{
+export const getFiles=async ()=>{
     try {
         const response=await privateAxios.get('/api/files/getFiles')
         return response

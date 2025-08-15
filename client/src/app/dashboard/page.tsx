@@ -11,7 +11,8 @@ import {
   File as FileIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { uploadFile } from "@/lib/api/file";
+import { uploadFile,deleteFile, getFiles} from "@/lib/api/file";
+import ProtectedRoute from "@/routes/ProtectedRoute";
 
 interface UploadedFile {
   _id: string;
@@ -25,15 +26,15 @@ export default function Dashboard() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    fetchFiles();
-  }, []);
+//   useEffect(() => {
+//     fetchFiles();
+//   }, []);
 
-  const fetchFiles = async () => {
-    const res = await fetch("/api/files");
-    const data = await res.json();
-    setFiles(data);
-  };
+//   const fetchFiles = async () => {
+//     const res = await getFiles();
+  
+//     setFiles(res?.data);
+//   };
   const allowedTypes = [
     "image/png",
     "image/jpeg",
@@ -79,7 +80,7 @@ export default function Dashboard() {
 
       if (res?.status === 200) {
         setSelectedFiles([]);
-        fetchFiles();
+        // fetchFiles();
       } else {
         alert("Upload failed");
       }
@@ -92,8 +93,9 @@ export default function Dashboard() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this file?")) return;
-    await fetch(`/api/files/${id}`, { method: "DELETE" });
-    fetchFiles();
+    await deleteFile(id);
+    toast.success("File deleted successfully");
+    // fetchFiles();
   };
 
   const renderSelectedFilePreview = () => {
@@ -137,7 +139,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+      <ProtectedRoute>
+        <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">File Dashboard</h1>
 
       {/* Upload Section */}
@@ -226,5 +229,7 @@ export default function Dashboard() {
         </table>
       </div>
     </div>
+      </ProtectedRoute>
+    
   );
 }

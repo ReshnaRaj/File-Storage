@@ -11,6 +11,7 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const token = useSelector((state: RootState) => state.auth.token);
+  console.log(token,"token...")
   const router = useRouter();
 
   useEffect(() => {

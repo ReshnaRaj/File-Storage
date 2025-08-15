@@ -8,12 +8,18 @@ dotenv.config();
 
 const storage = multer.memoryStorage();
 export const upload = multer({ storage });
+const BUCKET_NAME = process.env.AWS_S3_BUCKET;
+ 
+const REG=process.env.AWS_REGION
+ 
 
 // @desc Upload file
 export const uploadFile = async (req: Request, res: Response) => {
   try {
     const file = req.file;
-    const userId = (req as any).user.id; // Assuming you set req.user in auth middleware
+    const userId = (req as any).user.userId;  
+ 
+    
 
     if (!file) {
       return res.status(400).json({ message: "No file uploaded" });
@@ -23,7 +29,7 @@ export const uploadFile = async (req: Request, res: Response) => {
 
     // Upload to S3
     const uploadParams = {
-      Bucket: process.env.AWS_BUCKET_NAME!,
+      Bucket: BUCKET_NAME,
       Key: key,
       Body: file.buffer,
       ContentType: file.mimetype,
@@ -32,7 +38,7 @@ export const uploadFile = async (req: Request, res: Response) => {
     await s3Client.send(new PutObjectCommand(uploadParams));
 
     // File URL
-    const url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_BUCKET_REGION}.amazonaws.com/${key}`;
+    const url = `https://${BUCKET_NAME}.s3.${REG}.amazonaws.com/${key}`;
 
     // Save in MongoDB
     const savedFile = await FileModel.create({
