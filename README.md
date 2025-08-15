@@ -31,8 +31,8 @@ It allows users to sign up, log in, and securely upload, download, preview, and 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/secure-file-storage-s3.git
-cd secure-file-storage-s3
+git clone https://github.com/ReshnaRaj/File-Storage.git
+cd client
 ```
 
 ### 2. Backend Setup
