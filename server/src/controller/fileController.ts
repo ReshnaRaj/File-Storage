@@ -60,8 +60,10 @@ export const uploadFile = async (req: Request, res: Response) => {
 // @desc Fetch all files for a user
 export const getFiles = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.userId;
+    
     const files = await FileModel.find({ userId }).sort({ createdAt: -1 });
+     
     res.json(files);
   } catch (error) {
     console.error(error);
@@ -73,14 +75,15 @@ export const getFiles = async (req: Request, res: Response) => {
 export const deleteFile = async (req: Request, res: Response) => {
   try {
     const { fileId } = req.params;
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.userId;
 
     const file = await FileModel.findOne({ _id: fileId, userId });
+   
     if (!file) return res.status(404).json({ message: "File not found" });
 
     // Delete from S3
     await s3Client.send(new DeleteObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME!,
+      Bucket: BUCKET_NAME,
       Key: file.key,
     }));
 

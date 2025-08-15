@@ -1,7 +1,7 @@
 import { privateAxios } from "../axiosInstance";
 export const uploadFile=async (formData:FormData)=>{
     try {
-        const response=await privateAxios.post('/api/files/upload',formData,{
+        const response=await privateAxios.post('/files/upload',formData,{
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -13,7 +13,8 @@ export const uploadFile=async (formData:FormData)=>{
 }
 export const getFiles=async ()=>{
     try {
-        const response=await privateAxios.get('/api/files/getFiles')
+        const response=await privateAxios.get('/files/getFiles')
+ 
         return response
     } catch (error) {
         console.log(error,"error in fetch files api")
@@ -21,7 +22,8 @@ export const getFiles=async ()=>{
 }
 export const deleteFile=async (fileId:string)=>{
     try {
-        const response=await privateAxios.delete(`/api/del-files/${fileId}`)
+        
+        const response=await privateAxios.delete(`/files/del-files/${fileId}`)
         return response
     } catch (error) {
         console.log(error,"error in delete file api")

@@ -66,6 +66,7 @@ export const login = async (req: Request, res: Response) => {
 };
 export const refreshToken = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
+  
   if (!refreshToken) {
     return res.status(401).json({ message: "No refresh token provided" });
   }
@@ -74,10 +75,15 @@ export const refreshToken = async (req: Request, res: Response) => {
       refreshToken,
       process.env.JWT_REFRESH_SECRET as string
     ) as { userId: string };
-    console.log(decoded, "decoded token");
-    const newAccessToken = generateRefreshToken(decoded.userId);
+    console.log(decoded,"decoded refresh token")
+   
+    const accessToken = generateToken(decoded.userId);
     return res.status(200).json({
-      accessToken: newAccessToken,
+      accessToken,user:{
+        id: decoded.userId,
+        // name:decoded.name,
+        // email:decoded.email
+      },
       message: "Access token refreshed successfully",
     });
   } catch (error) {

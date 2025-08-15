@@ -31,7 +31,7 @@ export default function Login() {
   const handleSubmit = async (values: LoginValues) => {
     try {
       const response = await login(values);
-      console.log(response, "login response ");
+    
       if (response?.status == 200) {
         dispatch(
           setCredentials({
