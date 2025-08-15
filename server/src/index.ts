@@ -6,6 +6,7 @@ import path from "path";
 dotenv.config();
 import dbConnection from "./config/dbConnection"
 import authRoute from "./routes/authRoute";
+import fileRoute from "./routes/fileRoute";
 const app = express();
  
 app.use(cors({
@@ -16,7 +17,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use('/api/auth',authRoute);
-// app.use('/api/files',fileRoute)
+app.use('/api/files',fileRoute)
 dbConnection()
   .then(() => {
     app.listen(process.env.PORT, () => {

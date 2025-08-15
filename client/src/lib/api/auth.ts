@@ -1,4 +1,4 @@
-import { privateAxios,publicAxios } from "../axiosInstance";
+import { publicAxios } from "../axiosInstance";
 export const registeration=async (formData:object)=>{
     try {
         const response=await publicAxios.post('/api/auth/register',formData)

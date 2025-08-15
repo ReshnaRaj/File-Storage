@@ -1,19 +1,25 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
-interface File extends Document {
-  owner: Types.ObjectId;
-  originalName: string;
+import mongoose, { Schema, Document } from "mongoose";
+
+export interface IFile extends Document {
+  userId: string;
+  url: string;
   key: string;
+  fileName: string;
   size: number;
   mimeType: string;
   createdAt: Date;
 }
-const fileSchema = new Schema<File>({
-  owner: { type: Schema.Types.ObjectId, ref: "user", required: true },
-  originalName: { type: String, required: true },
-  key: { type: String, required: true },
-  size: { type: Number, required: true },
-  mimeType: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
 
-export default mongoose.model<File>("file", fileSchema);
+const FileSchema = new Schema<IFile>(
+  {
+    userId: { type: String, required: true },
+    url: { type: String, required: true },
+    key: { type: String, required: true },
+    fileName: { type: String, required: true },
+    size: { type: Number, required: true },
+    mimeType: { type: String, required: true }
+  },
+  { timestamps: true }
+);
+
+export const FileModel = mongoose.model<IFile>("File", FileSchema);
