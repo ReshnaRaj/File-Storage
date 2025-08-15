@@ -8,7 +8,17 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
 import { registeration } from "@/lib/api/auth";
+import { LockKeyhole, LockKeyholeOpen } from "lucide-react";
+import { useState } from "react";
 export default function RegisterPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState(false);
+  const togglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
+  const toggleConfirmPassword = () => {
+    setConfirmPassword((prev) => !prev);
+  };
   const router = useRouter();
   interface RegisterValues {
     name: string;
@@ -111,15 +121,56 @@ export default function RegisterPage() {
                 <label className="block text-left text-sm font-semibold mb-1 text-[#313131]">
                   Password
                 </label>
-                <Field
-                  as={Input}
-                  name="password"
-                  type="password"
-                  placeholder="Enter Password"
-                  className="w-full"
-                />
+                <div className="relative">
+                  <Field
+                    as={Input}
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter Password"
+                    className="w-full"
+                  />
+                  <span
+                    onClick={togglePassword}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+                  >
+                    {!showPassword ? (
+                      <LockKeyhole className="w-5 h-5" />
+                    ) : (
+                      <LockKeyholeOpen className="w-5 h-5" />
+                    )}
+                  </span>
+                </div>
                 <ErrorMessage
                   name="password"
+                  component="div"
+                  className="text-red-500 text-sm mt-1 text-left"
+                />
+              </div>
+              <div className="mb-6">
+                <label className="block text-left text-sm font-semibold mb-1 text-[#313131]">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Field
+                    as={Input}
+                    name="confirmpassword"
+                    type={confirmPassword ? "text" : "password"}
+                    placeholder="Enter Confirm Password"
+                    className="w-full"
+                  />
+                  <span
+                    onClick={toggleConfirmPassword}
+                    className="absolute  right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+                  >
+                    {!confirmPassword ? (
+                      <LockKeyhole className="w-5 h-5" />
+                    ) : (
+                      <LockKeyholeOpen className="w-5 h-5" />
+                    )}
+                  </span>
+                </div>
+                <ErrorMessage
+                  name="confirmpassword"
                   component="div"
                   className="text-red-500 text-sm mt-1 text-left"
                 />

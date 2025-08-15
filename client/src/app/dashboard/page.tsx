@@ -9,7 +9,6 @@ import {
   FileText,
   FileImage,
   File as FileIcon,
- 
 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadFile, deleteFile, getFiles, downloadFile } from "@/lib/api/file";
@@ -44,11 +43,13 @@ export default function Dashboard() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchFiles = async () => {
+    setLoading(true);
     const res = await getFiles();
-
     setFiles(res?.data);
+    setLoading(false);
   };
   const allowedTypes = [
     "image/png",
@@ -154,6 +155,25 @@ export default function Dashboard() {
       </div>
     );
   };
+  const renderSkeletonCards = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {Array.from({ length: 8 }).map((_, idx) => (
+        <div
+          key={idx}
+          className="bg-white shadow rounded-lg p-4 flex flex-col items-center"
+        >
+          <div className="w-32 h-32 mb-2">
+            <Skeleton className="w-full h-full rounded" />
+          </div>
+          <Skeleton className="w-24 h-4 mb-2" />
+          <div className="flex gap-3 mt-auto">
+            <Skeleton className="w-8 h-8 rounded" />
+            <Skeleton className="w-8 h-8 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
   useEffect(() => {
     if (token) {
       fetchFiles();
@@ -167,7 +187,7 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold">File Dashboard</h1>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer"
           >
             Logout
           </button>
@@ -205,70 +225,74 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Files List as Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {files.length === 0 ? (
-            <div className="col-span-full text-center text-gray-500 p-6">
-              No files uploaded
-            </div>
-          ) : (
-            files.map((file) => (
-              <div
-                key={file._id}
-                className="bg-white shadow rounded-lg p-4 flex flex-col items-center relative group hover:shadow-lg transition"
-              >
-                {/* Preview */}
-                <div
-                  className="w-32 h-32 flex items-center justify-center mb-2 cursor-pointer"
-                  onClick={() => setPreviewImage(file.url)}
-                >
-                  {file.mimeType.startsWith("image/") ? (
-                    <img
-                      src={file.url}
-                      alt={file.fileName}
-                      className="w-full h-full object-cover rounded"
-                    />
-                  ) : file.mimeType === "application/pdf" ? (
-                    <div className="flex flex-col items-center justify-center w-full h-full border rounded bg-gray-50">
-                      <FileText className="w-10 h-10 text-red-500" />
-                      <span className="text-xs">PDF</span>
-                    </div>
-                  ) : file.mimeType === "application/msword" ||
-                    file.mimeType ===
-                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ? (
-                    <div className="flex flex-col items-center justify-center w-full h-full border rounded bg-gray-50">
-                      <FileIcon className="w-10 h-10 text-blue-500" />
-                      <span className="text-xs">DOC</span>
-                    </div>
-                  ) : (
-                    <span className="text-gray-500">No preview</span>
-                  )}
-                </div>
-                {/* File Name */}
-                <div className="font-medium text-sm text-center mb-2 truncate w-full">
-                  {file.fileName}
-                </div>
-                {/* Actions */}
-                <div className="flex justify-center gap-3 mt-auto">
-                  <button
-                    onClick={() => handleDownload(file._id, file.fileName)}
-                    className="p-2 bg-green-100 hover:bg-green-200 rounded"
-                    title="Download"
-                  >
-                    <Download className="w-4 h-4 text-green-700" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(file._id)}
-                    className="p-2 bg-red-100 hover:bg-red-200 rounded"
-                    title="Delete"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-700" />
-                  </button>
-                </div>
+        {/* Files List as Cards or Skeleton */}
+        {loading ? (
+          renderSkeletonCards()
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {files.length === 0 ? (
+              <div className="col-span-full text-center text-gray-500 p-6">
+                No files uploaded
               </div>
-            ))
-          )}
-        </div>
+            ) : (
+              files.map((file) => (
+                <div
+                  key={file._id}
+                  className="bg-white shadow rounded-lg p-4 flex flex-col items-center relative group hover:shadow-lg transition"
+                >
+                  {/* Preview */}
+                  <div
+                    className="w-32 h-32 flex items-center justify-center mb-2 cursor-pointer"
+                    onClick={() => setPreviewImage(file.url)}
+                  >
+                    {file.mimeType.startsWith("image/") ? (
+                      <img
+                        src={file.url}
+                        alt={file.fileName}
+                        className="w-full h-full object-cover rounded"
+                      />
+                    ) : file.mimeType === "application/pdf" ? (
+                      <div className="flex flex-col items-center justify-center w-full h-full border rounded bg-gray-50">
+                        <FileText className="w-10 h-10 text-red-500" />
+                        <span className="text-xs">PDF</span>
+                      </div>
+                    ) : file.mimeType === "application/msword" ||
+                      file.mimeType ===
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ? (
+                      <div className="flex flex-col items-center justify-center w-full h-full border rounded bg-gray-50">
+                        <FileIcon className="w-10 h-10 text-blue-500" />
+                        <span className="text-xs">DOC</span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-500">No preview</span>
+                    )}
+                  </div>
+                  {/* File Name */}
+                  <div className="font-medium text-sm text-center mb-2 truncate w-full">
+                    {file.fileName}
+                  </div>
+                  {/* Actions */}
+                  <div className="flex justify-center gap-3 mt-auto">
+                    <button
+                      onClick={() => handleDownload(file._id, file.fileName)}
+                      className="p-2 bg-green-100 hover:bg-green-200 rounded"
+                      title="Download"
+                    >
+                      <Download className="w-4 h-4 text-green-700" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(file._id)}
+                      className="p-2 bg-red-100 hover:bg-red-200 rounded"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-700" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
         {/* File Preview Modal */}
         {previewImage && (
@@ -329,5 +353,15 @@ export default function Dashboard() {
         )}
       </div>
     </ProtectedRoute>
+  );
+}
+
+// If you don't have a Skeleton component, add this simple one:
+export function Skeleton({ className }: { className?: string }) {
+  return (
+    <div
+      className={`animate-pulse bg-gray-200 ${className || ""}`}
+      style={{ borderRadius: "4px" }}
+    />
   );
 }

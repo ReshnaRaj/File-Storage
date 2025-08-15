@@ -7,9 +7,17 @@ import * as Yup from "yup";
 import { toast } from "sonner";
 import { login } from "@/lib/api/auth";
 import { useDispatch } from "react-redux";
+import { LockKeyhole, LockKeyholeOpen } from "lucide-react";
+import { useState } from "react";
 import { setCredentials } from "@/redux/slice/authSlice";
 export default function Login() {
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
   const dispatch = useDispatch();
+
   const router = useRouter();
   interface LoginValues {
     email: string;
@@ -31,7 +39,7 @@ export default function Login() {
   const handleSubmit = async (values: LoginValues) => {
     try {
       const response = await login(values);
-    
+
       if (response?.status == 200) {
         dispatch(
           setCredentials({
@@ -91,13 +99,26 @@ export default function Login() {
                 <label className="block text-left text-sm font-semibold mb-1 text-[#313131]">
                   Password
                 </label>
-                <Field
-                  as={Input}
-                  name="password"
-                  type="password"
-                  placeholder="Enter Password"
-                  className="w-full"
-                />
+                <div className="relative">
+                  <Field
+                    as={Input}
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter Password"
+                    className="w-full"
+                  />
+                  <span
+                    onClick={togglePassword}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+                  >
+                    {!showPassword ? (
+                      <LockKeyhole className="w-5 h-5" />
+                    ) : (
+                      <LockKeyholeOpen className="w-5 h-5" />
+                    )}
+                  </span>
+                </div>
+
                 <ErrorMessage
                   name="password"
                   component="div"
