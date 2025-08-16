@@ -60,6 +60,7 @@ export default function RegisterPage() {
         }, 1000);
       }
     } catch (err) {
+      console.log(err,"catch error ")
       const error = err as { response?: { data?: { message?: string }, status?: number }, status?: number };
       const msg = error?.response?.data?.message || "Registration failed";
       console.log(error?.response?.data?.message, "messages", error?.status);
