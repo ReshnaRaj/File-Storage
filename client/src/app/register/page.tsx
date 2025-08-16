@@ -24,12 +24,14 @@ export default function RegisterPage() {
     name: string;
     email: string;
     password: string;
+    confirmpassword: string;
   }
 
   const initialValues: RegisterValues = {
     name: "",
     email: "",
     password: "",
+    confirmpassword: "",
   };
   const validationSchema = Yup.object({
     name: Yup.string()
@@ -41,12 +43,16 @@ export default function RegisterPage() {
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
+      confirmpassword: Yup.string()
+      .oneOf([Yup.ref("password"), undefined], "Passwords must match")
+      .required("Confirm Password is required"),
+      
   });
 
-  const handleSubmit = async (values: RegisterValues) => {
+  const handleSubmit = async (values: RegisterValues, { setSubmitting, setFieldError }: any) => {
     try {
       const response = await registeration(values);
-
+      
       if (response?.status === 201) {
         toast.success("Registration successful!");
         setTimeout(() => {
@@ -54,8 +60,15 @@ export default function RegisterPage() {
         }, 1000);
       }
     } catch (err) {
-      console.error(err);
+      const error = err as { response?: { data?: { message?: string }, status?: number }, status?: number };
+      const msg = error?.response?.data?.message || "Registration failed";
+      console.log(error?.response?.data?.message, "messages", error?.status);
+      if (error?.status === 400) {
+        setFieldError("general", msg);
+        toast.error(error?.response?.data?.message);
+      }
     } finally {
+      setSubmitting(false);
     }
   };
 
