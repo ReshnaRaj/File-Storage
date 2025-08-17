@@ -7,9 +7,9 @@ import {
   Download,
   Loader2,
   FileText,
-  FileImage,
   File as FileIcon,
 } from "lucide-react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { uploadFile, deleteFile, getFiles, downloadFile } from "@/lib/api/file";
 import ProtectedRoute from "@/routes/ProtectedRoute";
@@ -29,7 +29,7 @@ export default function Dashboard() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const handleDownload = async (fileId: string, filename: string) => {
-    console.log(filename, fileId, "kkkkk");
+  
     try {
       await downloadFile(fileId, filename);
     } catch (error) {
@@ -125,7 +125,7 @@ export default function Dashboard() {
           <div key={index} className="relative w-24 h-24">
             {/* Preview */}
             {file.type.startsWith("image/") ? (
-              <img
+              <Image
                 src={URL.createObjectURL(file)}
                 alt="Preview"
                 className="w-full h-full object-cover rounded border"
@@ -246,7 +246,7 @@ export default function Dashboard() {
                     onClick={() => setPreviewImage(file.url)}
                   >
                     {file.mimeType.startsWith("image/") ? (
-                      <img
+                      <Image
                         src={file.url}
                         alt={file.fileName}
                         className="w-full h-full object-cover rounded"
@@ -309,7 +309,7 @@ export default function Dashboard() {
                 if (!file) return null;
                 if (file.mimeType.startsWith("image/")) {
                   return (
-                    <img
+                    <Image
                       src={previewImage}
                       alt="Preview"
                       className="max-w-full max-h-[80vh] object-contain"

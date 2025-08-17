@@ -2,10 +2,10 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage,FormikHelpers } from "formik";
 import * as Yup from "yup";
+import Link from "next/link";
 import { toast } from "sonner";
 import { registeration } from "@/lib/api/auth";
 import { LockKeyhole, LockKeyholeOpen } from "lucide-react";
@@ -49,7 +49,7 @@ export default function RegisterPage() {
       
   });
 
-  const handleSubmit = async (values: RegisterValues, { setSubmitting, setFieldError }: any) => {
+  const handleSubmit = async (values: RegisterValues, { setSubmitting, setFieldError }: FormikHelpers<RegisterValues>) => {
     try {
       const response = await registeration(values);
       
@@ -207,12 +207,12 @@ export default function RegisterPage() {
 
               <p className="mt-4 text-sm text-center text-[#313131]">
                 Already have an account?{" "}
-                <a
+                <Link
                   href="/"
                   className="text-blue-600 font-medium hover:underline"
                 >
                   Login Now
-                </a>
+                </Link>
               </p>
             </Form>
           )}
