@@ -11,6 +11,17 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { uploadFile, deleteFile, getFiles, downloadFile } from "@/lib/api/file";
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import { useSelector, useDispatch } from "react-redux";
@@ -27,6 +38,7 @@ interface UploadedFile {
 }
 
 export default function Dashboard() {
+  const [open, setOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const handleDownload = async (fileId: string, filename: string) => {
@@ -104,7 +116,7 @@ export default function Dashboard() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this file?")) return;
+    
     await deleteFile(id);
     toast.success("File deleted successfully");
     fetchFiles();
@@ -129,9 +141,9 @@ export default function Dashboard() {
                 src={URL.createObjectURL(file)}
                 alt="Preview"
                 fill
-                 priority
+                priority
                 className="w-full h-full object-cover rounded border"
-                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             ) : file.type === "application/pdf" ? (
               <div className="w-full h-full flex flex-col items-center justify-center border rounded bg-gray-50">
@@ -253,9 +265,9 @@ export default function Dashboard() {
                         src={file.url}
                         alt={file.fileName}
                         fill
-                         priority
+                        priority
                         className=" object-cover rounded"
-                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     ) : file.mimeType === "application/pdf" ? (
                       <div className="flex flex-col items-center justify-center w-full h-full border rounded bg-gray-50">
@@ -286,13 +298,33 @@ export default function Dashboard() {
                     >
                       <Download className="w-4 h-4 text-green-700" />
                     </button>
-                    <button
-                      onClick={() => handleDelete(file._id)}
-                      className="p-2 bg-red-100 hover:bg-red-200 rounded"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-700" />
-                    </button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          className="p-2 bg-red-100 hover:bg-red-200 rounded"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-700" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete this file?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. The file will be
+                            permanently deleted.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(file._id)} // ✅ call existing function
+                          >
+                            Yes, delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               ))
@@ -320,9 +352,9 @@ export default function Dashboard() {
                         src={previewImage}
                         alt="Preview"
                         fill
-                         priority
+                        priority
                         className="object-contain"
-                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     </div>
                   );
