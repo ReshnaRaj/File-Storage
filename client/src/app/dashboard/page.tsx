@@ -113,7 +113,7 @@ export default function Dashboard() {
   const handleLogout = () => {
     dispatch(logout());
     toast.success("Logged out successfully");
-    window.location.href = "/login"; // Redirect to login page
+    window.location.href = "/";  
   };
 
   const renderSelectedFilePreview = () => {

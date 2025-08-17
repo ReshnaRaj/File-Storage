@@ -16,7 +16,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     if (!token) {
-      router.replace("/login"); // Redirect to login if no token
+      router.replace("/"); // Redirect to login if no token
     }
   }, [token, router]);
 

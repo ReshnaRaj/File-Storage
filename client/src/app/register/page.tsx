@@ -56,7 +56,7 @@ export default function RegisterPage() {
       if (response?.status === 201) {
         toast.success("Registration successful!");
         setTimeout(() => {
-          router.push("/login");
+          router.push("/");
         }, 1000);
       }
     } catch (err) {
@@ -208,7 +208,7 @@ export default function RegisterPage() {
               <p className="mt-4 text-sm text-center text-[#313131]">
                 Already have an account?{" "}
                 <a
-                  href="/login"
+                  href="/"
                   className="text-blue-600 font-medium hover:underline"
                 >
                   Login Now
