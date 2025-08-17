@@ -16,6 +16,7 @@ import ProtectedRoute from "@/routes/ProtectedRoute";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../redux/store";
 import { logout } from "../../redux/slice/authSlice";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface UploadedFile {
   _id: string;
@@ -29,7 +30,6 @@ export default function Dashboard() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const handleDownload = async (fileId: string, filename: string) => {
-  
     try {
       await downloadFile(fileId, filename);
     } catch (error) {
@@ -113,7 +113,7 @@ export default function Dashboard() {
   const handleLogout = () => {
     dispatch(logout());
     toast.success("Logged out successfully");
-    window.location.href = "/";  
+    window.location.href = "/";
   };
 
   const renderSelectedFilePreview = () => {
@@ -128,7 +128,10 @@ export default function Dashboard() {
               <Image
                 src={URL.createObjectURL(file)}
                 alt="Preview"
+                fill
+                 priority
                 className="w-full h-full object-cover rounded border"
+                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             ) : file.type === "application/pdf" ? (
               <div className="w-full h-full flex flex-col items-center justify-center border rounded bg-gray-50">
@@ -179,7 +182,7 @@ export default function Dashboard() {
       fetchFiles();
     }
   }, [token]);
-  console.log(files, "file dataaa");
+
   return (
     <ProtectedRoute>
       <div className="max-w-4xl mx-auto p-6">
@@ -242,14 +245,17 @@ export default function Dashboard() {
                 >
                   {/* Preview */}
                   <div
-                    className="w-32 h-32 flex items-center justify-center mb-2 cursor-pointer"
+                    className="w-32 h-32  relative mb-2 cursor-pointer"
                     onClick={() => setPreviewImage(file.url)}
                   >
                     {file.mimeType.startsWith("image/") ? (
                       <Image
                         src={file.url}
                         alt={file.fileName}
-                        className="w-full h-full object-cover rounded"
+                        fill
+                         priority
+                        className=" object-cover rounded"
+                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     ) : file.mimeType === "application/pdf" ? (
                       <div className="flex flex-col items-center justify-center w-full h-full border rounded bg-gray-50">
@@ -309,11 +315,16 @@ export default function Dashboard() {
                 if (!file) return null;
                 if (file.mimeType.startsWith("image/")) {
                   return (
-                    <Image
-                      src={previewImage}
-                      alt="Preview"
-                      className="max-w-full max-h-[80vh] object-contain"
-                    />
+                    <div className="relative w-[600px] h-[80vh]">
+                      <Image
+                        src={previewImage}
+                        alt="Preview"
+                        fill
+                         priority
+                        className="object-contain"
+                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    </div>
                   );
                 } else if (file.mimeType === "application/pdf") {
                   return (
@@ -356,12 +367,11 @@ export default function Dashboard() {
   );
 }
 
-// If you don't have a Skeleton component, add this simple one:
-export function Skeleton({ className }: { className?: string }) {
-  return (
-    <div
-      className={`animate-pulse bg-gray-200 ${className || ""}`}
-      style={{ borderRadius: "4px" }}
-    />
-  );
-}
+// export function Skeleton({ className }: { className?: string }) {
+//   return (
+//     <div
+//       className={`animate-pulse bg-gray-200 ${className || ""}`}
+//       style={{ borderRadius: "4px" }}
+//     />
+//   );
+// }
